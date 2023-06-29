@@ -20,20 +20,22 @@ namespace AuthoringAndMono
     {
         public override void Bake(GraveyardMono authoring)
         {
-            AddComponent(new GraveyardProperties()
+            var entity = GetEntity(TransformUsageFlags.Dynamic);
+            
+            AddComponent(entity, new GraveyardProperties()
             {
                 FieldDimensions = authoring.FieldDimensions,
                 NumberTombstonesToSpawn = authoring.NumberTombstonesToSpawn,
-                TombstonePrefab = GetEntity(authoring.TombstonePrefab),
-                ZombiePrefab = GetEntity(authoring.ZombiePrefab),
+                TombstonePrefab = GetEntity(authoring.TombstonePrefab, TransformUsageFlags.Dynamic),
+                ZombiePrefab = GetEntity(authoring.ZombiePrefab, TransformUsageFlags.Dynamic),
                 ZombieSpawnRate = authoring.ZombieSpawnRate
             });
-            AddComponent(new GraveyardRandom()
+            AddComponent(entity, new GraveyardRandom()
             {
                 Value = Random.CreateFromIndex(authoring.RandomSeed)
             });
-            AddComponent<ZombieSpawnPoints>();
-            AddComponent<ZombieSpawnTimer>();
+            AddComponent<ZombieSpawnPoints>(entity);
+            AddComponent<ZombieSpawnTimer>(entity);
         }
     }
 }

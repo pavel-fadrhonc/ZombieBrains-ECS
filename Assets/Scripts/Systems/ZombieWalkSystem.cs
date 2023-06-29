@@ -28,7 +28,7 @@ namespace Systems
             var dt = SystemAPI.Time.DeltaTime;
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var brainEntity = SystemAPI.GetSingletonEntity<BrainTag>();
-            var brainScale = SystemAPI.GetComponent<LocalToWorldTransform>(brainEntity).Value.Scale;
+            var brainScale = SystemAPI.GetComponent<LocalTransform>(brainEntity).Scale;
             var brainRadius = brainScale * 5 + 0.5f;
 
             new ZombieWalkJob()
@@ -48,7 +48,13 @@ namespace Systems
         public EntityCommandBuffer.ParallelWriter ECB;
 
         [BurstCompile]
-        private void Execute(ZombieWalkAspect zombieWalk,[EntityInQueryIndex] int sortKey)
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<BrainTag>();
+        }
+        
+        [BurstCompile]
+        private void Execute(ZombieWalkAspect zombieWalk,[ChunkIndexInQuery] int sortKey)
         {
             zombieWalk.Walk(DeltaTime);
 

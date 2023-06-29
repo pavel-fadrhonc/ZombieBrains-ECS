@@ -8,22 +8,22 @@ namespace ComponentsAndTags
     {
         public readonly Entity Entity;
 
-        private readonly TransformAspect _transformAspect;
+        private readonly RefRW<LocalTransform> _transform;
         
         private readonly RefRO<ZombieRiseRate> _zombieRiseRate;
 
         public void Rise(float dt)
         {
-            _transformAspect.Position += math.up() * _zombieRiseRate.ValueRO.Value * dt;
+            _transform.ValueRW.Position += math.up() * _zombieRiseRate.ValueRO.Value * dt;
         }
 
-        public bool IsAboveGround => _transformAspect.Position.y > 0;
+        public bool IsAboveGround => _transform.ValueRO.Position.y > 0;
 
         public void SetAtGroundLevel()
         {
-            var position = _transformAspect.Position;
+            var position = _transform.ValueRO.Position;
             position.y = 0;
-            _transformAspect.Position = position;
+            _transform.ValueRW.Position = position;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace ComponentsAndTags
     {
         public readonly Entity Entity;
         
-        private readonly TransformAspect _transform;
+        private readonly RefRW<LocalTransform> _transform;
         private readonly RefRW<BrainHealth> _brainHealth;
         private readonly DynamicBuffer<BrainDamageBufferElement> _brainDamageBuffer;
 
@@ -31,12 +31,8 @@ namespace ComponentsAndTags
             }
             
             _brainDamageBuffer.Clear();
-
-            var newScale = BrainHealth / BrainHealthMax;
-                
-            var ltw = _transform.LocalToWorld;
-            ltw.Scale = newScale ;
-            _transform.LocalToWorld = ltw;
+            
+            _transform.ValueRW.Scale = BrainHealth / BrainHealthMax;
         }
     }
 }

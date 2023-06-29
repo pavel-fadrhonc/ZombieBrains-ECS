@@ -46,7 +46,7 @@ namespace Systems
             if (!graveyard.TimeToSpawnZombie)
                 return;
 
-            if (graveyard.ZombieSpawnPoints.Length == 0) return;
+            if(!graveyard.ZombieSpawnPointInitialized()) return;
             
             graveyard.ZombieSpawnTimer = graveyard.ZombieSpawnRate;
 
@@ -54,7 +54,7 @@ namespace Systems
 
             var zombieSpawnPoint = graveyard.GetZombieSpawnPoint();
             
-            ECB.SetComponent(newZombie, new LocalToWorldTransform() { Value = zombieSpawnPoint});
+            ECB.SetComponent(newZombie, zombieSpawnPoint);
 
             var zombieHeading = MathHelpers.GetHeading(zombieSpawnPoint.Position, graveyard.Position);
             ECB.AddComponent(newZombie, new ZombieHeading() {Value = zombieHeading});

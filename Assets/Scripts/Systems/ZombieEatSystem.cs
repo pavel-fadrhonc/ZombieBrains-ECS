@@ -26,7 +26,7 @@ namespace Systems
             var dt = SystemAPI.Time.DeltaTime;
             var brainEntity = SystemAPI.GetSingletonEntity<BrainTag>();
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-            var brainScale = SystemAPI.GetComponent<LocalToWorldTransform>(brainEntity).Value.Scale;
+            var brainScale = SystemAPI.GetComponent<LocalTransform>(brainEntity).Scale;
             var brainRadius = brainScale * 5 + 1f;
 
             new ZombieEatJob()
@@ -48,7 +48,13 @@ namespace Systems
         public float BrainRadiusSq;
 
         [BurstCompile]
-        private void Execute(ZombieEatAspect zombie, [EntityInQueryIndex] int sortKey)
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<BrainTag>();
+        }
+        
+        [BurstCompile]
+        private void Execute(ZombieEatAspect zombie, [ChunkIndexInQuery] int sortKey)
         {
             if (zombie.IsInEatingRange(float3.zero, BrainRadiusSq))
             {

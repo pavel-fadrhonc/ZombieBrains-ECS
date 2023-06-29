@@ -8,8 +8,8 @@ namespace ComponentsAndTags
     {
         public readonly Entity Entity;
 
-        private readonly TransformAspect _transform;
-        
+        private readonly RefRW<LocalTransform> _transform;
+
         private readonly RefRO<ZombieWalkProperties> _walkProperties;
         private readonly RefRW<ZombieTimer> _walkTimer;
         private readonly RefRO<ZombieHeading> _heading;
@@ -28,16 +28,16 @@ namespace ComponentsAndTags
 
         public bool IsInStoppingRange(float3 brainPosition, float brainDistanceSq)
         {
-            return math.distancesq(brainPosition, _transform.Position) <= brainDistanceSq;
+            return math.distancesq(brainPosition, _transform.ValueRO.Position) <= brainDistanceSq;
         }
         
         public void Walk(float dt)
         {
             WalkTimer += dt;
-            _transform.Position += _transform.Forward * WalkSpeed * dt;
+            _transform.ValueRW.Position += _transform.ValueRO.Forward() * WalkSpeed * dt;
 
             var swayAngle = WalkAmplitude * math.sin(WalkFrequency * WalkTimer);
-            _transform.Rotation = quaternion.Euler(0, Heading, swayAngle);
+            _transform.ValueRW.Rotation = quaternion.Euler(0, Heading, swayAngle);
         }
     }
 }

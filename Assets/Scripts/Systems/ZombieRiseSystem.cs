@@ -41,7 +41,7 @@ namespace Systems
         public EntityCommandBuffer.ParallelWriter Ecb;
         
         [BurstCompile]
-        private void Execute(ZombieRiseAspect zombie, [EntityInQueryIndex] int sortKey)
+        private void Execute(ZombieRiseAspect zombie, [ChunkIndexInQuery] int sortKey)
         {
             zombie.Rise(DeltaTime);
 

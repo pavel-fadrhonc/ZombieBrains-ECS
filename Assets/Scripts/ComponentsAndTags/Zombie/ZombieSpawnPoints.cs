@@ -6,6 +6,11 @@ namespace ComponentsAndTags
 {
     public struct ZombieSpawnPoints : IComponentData
     {
-        public NativeArray<float3> Value;
+        public BlobAssetReference<ZombieSpawnPointsBlob> Value;
+    }
+    
+    public struct ZombieSpawnPointsBlob
+    {
+        public BlobArray<float3> Value;
     }
 }

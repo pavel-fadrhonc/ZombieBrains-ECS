@@ -20,22 +20,24 @@ namespace AuthoringAndMono
     {
         public override void Bake(ZombieMono authoring)
         {
-            AddComponent(new ZombieRiseRate()
+            var entity = GetEntity(TransformUsageFlags.Dynamic);
+            
+            AddComponent(entity, new ZombieRiseRate()
             {
                 Value = authoring.RiseRate
             });
             
-            AddComponent(new ZombieWalkProperties()
+            AddComponent(entity, new ZombieWalkProperties()
             {
                 WalkAmplitude = authoring.WalkAmplitude,
                 WalkFrequency = authoring.WalkFrequency,
                 WalkSpeed = authoring.WalkSpeed
             });
             
-            AddComponent<ZombieTimer>();
-            AddComponent<ZombieHeading>();
-            AddComponent<NewZombieTag>();
-            AddComponent(new ZombieEatProperties()
+            AddComponent<ZombieTimer>(entity);
+            AddComponent<ZombieHeading>(entity);
+            AddComponent<NewZombieTag>(entity);
+            AddComponent(entity, new ZombieEatProperties()
             {
                 EatAmplitude = authoring.EatAmplitude,
                 EatFrequency = authoring.EatFrequency,

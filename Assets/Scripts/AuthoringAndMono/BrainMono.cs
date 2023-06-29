@@ -13,14 +13,16 @@ namespace ComponentsAndTags
     {
         public override void Bake(BrainMono authoring)
         {
-            AddComponent<BrainTag>();
-            AddComponent(new BrainHealth()
+            var brainEntity = GetEntity(TransformUsageFlags.Dynamic);
+            
+            AddComponent<BrainTag>(brainEntity);
+            AddComponent(brainEntity, new BrainHealth()
             {
                 Value = authoring.startingHealth,
                 Max = authoring.startingHealth,
                 
             });
-            AddBuffer<BrainDamageBufferElement>();
+            AddBuffer<BrainDamageBufferElement>(brainEntity);
         }
     }
 }

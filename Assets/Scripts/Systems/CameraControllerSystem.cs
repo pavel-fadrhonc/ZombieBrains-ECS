@@ -9,10 +9,15 @@ namespace Systems
 {
     public partial class CameraControllerSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            RequireForUpdate<BrainTag>();
+        }
+        
         protected override void OnUpdate()
         {
             var brainEntity = SystemAPI.GetSingletonEntity<BrainTag>();
-            var brainScale = SystemAPI.GetComponent<LocalToWorldTransform>(brainEntity).Value.Scale;
+            var brainScale = SystemAPI.GetComponent<LocalTransform>(brainEntity).Scale;
 
             var cameraSingleton = CameraSingleton.Instance;
             if (cameraSingleton == null) return;

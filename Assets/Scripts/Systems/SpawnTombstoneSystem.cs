@@ -29,10 +29,12 @@ namespace Systems
             state.Enabled = false;
 
             var graveyardEntity = SystemAPI.GetSingletonEntity<GraveyardProperties>();
-            var graveyard = SystemAPI.GetAspectRW<GraveyardAspect>(graveyardEntity);
+            var graveyard = SystemAPI.GetAspect<GraveyardAspect>(graveyardEntity);
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            var spawnPoints = new NativeList<float3>(Allocator.Temp);
+            var builder = new BlobBuilder(Allocator.Temp);
+            ref var spawnPoints = ref builder.ConstructRoot<ZombieSpawnPointsBlob>();
+            var arrayBuilder = builder.Allocate(ref spawnPoints.Value, graveyard.NumberTombstonesToSpawn);
             var tombStoneOffset = new float3(0f, -3f, 1f);
             
             for (int i = 0; i < graveyard.NumberTombstonesToSpawn; i++)
@@ -41,14 +43,16 @@ namespace Systems
 
                 var newTombStoneTransform = graveyard.GetRandomTombstoneTransform();
                 
-                ecb.SetComponent(newTombstone, new LocalToWorldTransform() {Value = newTombStoneTransform});
+                ecb.SetComponent(newTombstone, newTombStoneTransform);
 
                 var newZombieSpawnPoint = newTombStoneTransform.Position + tombStoneOffset;
-                spawnPoints.Add(newZombieSpawnPoint);
+                arrayBuilder[i] = newZombieSpawnPoint;
             }
-
-            graveyard.ZombieSpawnPoints = spawnPoints.ToArray(Allocator.Persistent);
             
+            var blobAsset = builder.CreateBlobAssetReference<ZombieSpawnPointsBlob>(Allocator.Persistent);
+            ecb.SetComponent(graveyardEntity, new ZombieSpawnPoints{Value = blobAsset});
+            builder.Dispose();
+
             ecb.Playback(state.EntityManager);
         }
     }

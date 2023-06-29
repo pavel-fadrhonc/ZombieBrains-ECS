@@ -8,7 +8,7 @@ namespace ComponentsAndTags
     {
         public readonly Entity Entity;
 
-        private readonly TransformAspect _transformAspect;
+        private readonly RefRW<LocalTransform> _transform;
 
         private readonly RefRO<ZombieEatProperties> _zombieEatProperties;
         private readonly RefRO<ZombieHeading> _zombieHeading;
@@ -29,7 +29,7 @@ namespace ComponentsAndTags
         {
             ZombieTimer += dt;
             var eatAngle = EatAmplitude * math.sin(ZombieTimer * EatFrequency);
-            _transformAspect.Rotation = quaternion.Euler(eatAngle, Heading, 0);
+            _transform.ValueRW.Rotation = quaternion.Euler(eatAngle, Heading, 0);
 
             var eatDamage = EatDamagePerSecond * dt;
             var curBrainDamage = new BrainDamageBufferElement() { Value = eatDamage };
@@ -38,7 +38,7 @@ namespace ComponentsAndTags
 
         public bool IsInEatingRange(float3 brainPosition, float brainRadiusSq)
         {
-            return math.distancesq(brainPosition, _transformAspect.Position) < (brainRadiusSq - 1);
+            return math.distancesq(brainPosition, _transform.ValueRO.Position) < (brainRadiusSq - 1);
         }
     }
 }

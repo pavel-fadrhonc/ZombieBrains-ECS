@@ -10,7 +10,9 @@ namespace ComponentsAndTags
     {
         public readonly Entity Entity;
 
-        private readonly TransformAspect _transformAspect;
+        //private readonly TransformAspect _transformAspect;
+        
+        private readonly RefRO<LocalTransform> _transform;
 
         private readonly RefRO<GraveyardProperties> _graveyardProperties;
         private readonly RefRW<GraveyardRandom> _graveyardRandom;
@@ -22,15 +24,16 @@ namespace ComponentsAndTags
         public Entity ZombiePrefab => _graveyardProperties.ValueRO.ZombiePrefab;
         public float ZombieSpawnRate => _graveyardProperties.ValueRO.ZombieSpawnRate;
         
-        public NativeArray<float3> ZombieSpawnPoints
+        public bool ZombieSpawnPointInitialized()
         {
-            get => _zombieSpawnPoints.ValueRO.Value;
-            set => _zombieSpawnPoints.ValueRW.Value = value;
+            return _zombieSpawnPoints.ValueRO.Value.IsCreated && ZombieSpawnPointCount > 0;
         }
 
-        public UniformScaleTransform GetRandomTombstoneTransform()
+        private int ZombieSpawnPointCount => _zombieSpawnPoints.ValueRO.Value.Value.Value.Length;
+        
+        public LocalTransform GetRandomTombstoneTransform()
         {
-            return new UniformScaleTransform()
+            return new LocalTransform ()
             {
                 Position = GetRandomPosition(),
                 Rotation = GetRandomRotation(),
@@ -45,7 +48,7 @@ namespace ComponentsAndTags
             do
             {
                 randomPosition = _graveyardRandom.ValueRW.Value.NextFloat3(MinCorner, MaxCorner);    
-            } while (math.distancesq(_transformAspect.Position, randomPosition) < BRAIN_SAFETY_RADIUS_SQ);
+            } while (math.distancesq(Position, randomPosition) < BRAIN_SAFETY_RADIUS_SQ);
 
             return randomPosition;
         }
@@ -55,8 +58,8 @@ namespace ComponentsAndTags
 
         private float GetRandomScale(float min) => _graveyardRandom.ValueRW.Value.NextFloat(min, 1f);
 
-        private float3 MinCorner => _transformAspect.Position - HalfDimensions;
-        private float3 MaxCorner => _transformAspect.Position + HalfDimensions;
+        private float3 MinCorner => Position - HalfDimensions;
+        private float3 MaxCorner => Position + HalfDimensions;
 
         private float3 HalfDimensions => new float3(
             _graveyardProperties.ValueRO.FieldDimensions.x * 0.5f,
@@ -73,23 +76,25 @@ namespace ComponentsAndTags
 
         public bool TimeToSpawnZombie => ZombieSpawnTimer <= 0;
 
-        public float3 Position => _transformAspect.Position;
+        public float3 Position => _transform.ValueRO.Position;
 
-        public UniformScaleTransform GetZombieSpawnPoint()
+        public LocalTransform GetZombieSpawnPoint()
         {
             var position = GetRandomZombieSpawnPoint();
 
-            return new UniformScaleTransform
+            return new LocalTransform 
             {
                 Position = position,
-                Rotation = quaternion.RotateY(MathHelpers.GetHeading(position, _transformAspect.Position)),
+                Rotation = quaternion.RotateY(MathHelpers.GetHeading(position, Position)),
                 Scale = 1f
             };
         }
 
         private float3 GetRandomZombieSpawnPoint()
         {
-            return ZombieSpawnPoints[_graveyardRandom.ValueRW.Value.NextInt(ZombieSpawnPoints.Length)];
+            return GetZombieSpawnPoint(_graveyardRandom.ValueRW.Value.NextInt(ZombieSpawnPointCount));
         }
+        
+        private float3 GetZombieSpawnPoint(int i) => _zombieSpawnPoints.ValueRO.Value.Value.Value[i];
     }
 }
